@@ -18,9 +18,15 @@ build_tests: verify_solc build_leb128_test
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/tests/cbor.decode.test.sol --output-dir ./build/v0.8/tests --overwrite --bin --hashes --opcodes --abi
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/tests/address.test.sol --output-dir ./build/v0.8/tests --overwrite --bin --hashes --opcodes --abi
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/tests/deserializeparams.test.sol --output-dir ./build/v0.8/tests --overwrite --bin --hashes --opcodes --abi
+<<<<<<< HEAD
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/tests/market.test.sol --output-dir ./build/v0.8/mocks/tests --overwrite --bin --hashes --opcodes --abi
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/tests/miner.test.sol --output-dir ./build/v0.8/mocks/tests --overwrite --bin --hashes --opcodes --abi
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/tests/bigints.test.sol --output-dir ./build/v0.8/tests --overwrite --bin --hashes --opcodes --abi
+=======
+	 ./bin/solc --optimize @zondax/solidity-bignumber=${PWD}/vendor/solidity-bignumber/ solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/tests/market.test.sol --output-dir ./build/v0.8/mocks/tests --overwrite --bin --hashes --opcodes --abi
+	 ./bin/solc --optimize @zondax/solidity-bignumber=${PWD}/vendor/solidity-bignumber/ solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/tests/miner.test.sol --output-dir ./build/v0.8/mocks/tests --overwrite --bin --hashes --opcodes --abi
+	 ./bin/solc --optimize @zondax/solidity-bignumber=${PWD}/vendor/solidity-bignumber/ solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/tests/bigints.test.sol --output-dir ./build/v0.8/tests --overwrite --bin --hashes --opcodes --abi
+>>>>>>> 9c9000a (Single commit)
 
 build_api: verify_solc deps
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/MarketAPI.sol --output-dir ./build/v0.8 --overwrite --bin --hashes --opcodes --abi
@@ -34,8 +40,13 @@ build_api: verify_solc deps
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/SendAPI.sol --output-dir ./build/v0.8 --overwrite --bin --hashes --opcodes --abi
 
 build_mock_api: verify_solc deps
+<<<<<<< HEAD
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/MarketMockAPI.sol --output-dir ./build/v0.8/mocks --overwrite --bin --hashes --opcodes --abi
 	 ./bin/solc --optimize solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/MinerMockAPI.sol --output-dir ./build/v0.8/mocks --overwrite --bin --hashes --opcodes --abi
+=======
+	 ./bin/solc --optimize @zondax/solidity-bignumber=${PWD}/vendor/solidity-bignumber/ solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/MarketMockAPI.sol --output-dir ./build/v0.8/mocks --overwrite --bin --hashes --opcodes --abi
+	 ./bin/solc --optimize @zondax/solidity-bignumber=${PWD}/vendor/solidity-bignumber/ solidity-cborutils=${PWD}/node_modules/solidity-cborutils/ @ensdomains=${PWD}/node_modules/@ensdomains/ contracts/v0.8/mocks/MinerMockAPI.sol --output-dir ./build/v0.8/mocks --overwrite --bin --hashes --opcodes --abi
+>>>>>>> 9c9000a (Single commit)
 
 build_builtin_actors:
 	cd testing/builtin-actors && make bundle-mainnet
