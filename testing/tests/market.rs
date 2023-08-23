@@ -33,6 +33,10 @@ use testing::parse_gas;
 use testing::setup;
 use testing::GasResult;
 
+use ethabi;
+use cbor_data::{CborBuilder, Encoder};
+use std::fs::File;
+
 const WASM_COMPILED_PATH: &str = "../build/v0.8/tests/MarketApiTest.bin";
 
 #[derive(SerdeSerialize, SerdeDeserialize)]
@@ -133,6 +137,48 @@ pub struct AuthenticateMessageParams {
 #[test]
 fn market_tests() {
     println!("Testing solidity API");
+
+    let file_result = File::open("../build/v0.8/tests/MarketApiTest.abi");
+    let file = match file_result {
+        Ok(file) => file,
+        Err(error) => panic!("Problem opening the file: {:?}", error),
+    };
+    let contract_in = ethabi::Contract::load(file);
+    let contract= match contract_in {
+        Ok(contract) => contract,
+        Err(error) => panic!("Problem with the contract: {:?}", error),
+    };
+
+    /* ABI snippet:
+    {
+        "inputs": [{ "internalType": "uint64", "name": "dealID", "type": "uint64" }],
+        "name": "get_deal_label",
+        "outputs": [
+            {
+                "components": [
+                    { "internalType": "bytes", "name": "data", "type": "bytes" },
+                    { "internalType": "bool", "name": "isString", "type": "bool" }
+                ],
+                "internalType": "struct CommonTypes.DealLabel",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }*/
+    let deal_id = ethabi::Token::Uint(ethabi::ethereum_types::U256::from(0)); 
+    let data = contract.function("get_deal_label")
+                                .unwrap()
+                                .encode_input(&[deal_id])
+                                .unwrap();
+
+    let cbor = CborBuilder::default().encode_array(|builder| {
+        builder.encode_bytes(data);
+    });
+
+    let temps = hex::encode_upper(&cbor.as_slice());
+    let get_deal_label_params = &temps[2..temps.len()]; //5824B6D312EA0000000000000000000000000000000000000000000000000000000000000000
 
     let mut gas_result: GasResult = vec![];
     let (mut tester, manifest) = setup::setup_tester();
@@ -632,7 +678,7 @@ fn market_tests() {
         sequence: 9,
         params: RawBytes::new(
             hex::decode(
-                "5824B6D312EA0000000000000000000000000000000000000000000000000000000000000000",
+                get_deal_label_params,
             )
             .unwrap(),
         ),
