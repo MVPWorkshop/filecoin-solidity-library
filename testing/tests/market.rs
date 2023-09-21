@@ -33,6 +33,9 @@ use testing::parse_gas;
 use testing::setup;
 use testing::GasResult;
 
+use testing::types;
+use alloy_primitives;
+
 const WASM_COMPILED_PATH: &str = "../build/v0.8/tests/MarketApiTest.bin";
 
 #[derive(SerdeSerialize, SerdeDeserialize)]
@@ -449,6 +452,66 @@ fn market_tests() {
         ..Message::default()
     };*/
 
+    // PLS
+            // [[[[
+            // ["0x0181E203922020B51BCC94BB0977C984C093770289DEA4E83EF08C355145D412C6673E06152A09"],
+            // 8388608,
+            // false,
+            // ["0x0390A40613DFB06445DFC3759EC22146D66B832AFE57B4AC441E5209D154131B1540E937CB837831855553E17EEFEEEED1"],
+            // ["0x0068"],
+            // ["0x6d41584367354149673859425862466a7464427931695a6a704459417752537430656c474c463547765471756c4569693156634d", true],
+            // 25245,
+            // 545150,
+            // ["0x01001D1BF800", false],
+            // ["0x038D7EA4C68000", false],
+            // ["0x038D7EA4C68000", false]],
+            // "0x02B7E4AD239896D5DF3491AFE01F9A6F9D5C4A1E59C16E6B386CE16797C00A1224D5ABB8EFE0EDC7B052FC0AB5772BA4DA10C064537320FEFCADA4167017508D882207B23DD457966DAF21393710A26CC5509AC079EC9A0846028B279435BD5F22" ]]]
+
+    let b = alloy_primitives::Bytes::from_static(b"hello");
+    let a = alloy_primitives::Bytes::from_static(b"090A0B0C");
+    let c = alloy_primitives::Bytes::from_static(b"0181E203922020B51BCC94BB0977C984C093770289DEA4E83EF08C355145D412C6673E06152A09");
+
+    let piece_cid = types::Cid {
+        data: alloy_primitives::Bytes::from_static(
+        b"0181E203922020B51BCC94BB0977C984C093770289DEA4E83EF08C355145D412C6673E06152A09"
+        ).to_vec()
+    };
+
+    let deal_proposal = types::DealProposal {
+        piece_cid: types::Cid {
+            data: alloy_primitives::Bytes::from_static(b"0181E203922020B51BCC94BB0977C984C093770289DEA4E83EF08C355145D412C6673E06152A09").to_vec()
+        },
+        piece_size: 8388608,
+        verified_deal: false,
+        client: types::FilAddress {
+            data: alloy_primitives::Bytes::from_static(b"0390A40613DFB06445DFC3759EC22146D66B832AFE57B4AC441E5209D154131B1540E937CB837831855553E17EEFEEEED1").to_vec()
+        },
+        provider: types::FilAddress {
+            data: alloy_primitives::Bytes::from_static(b"0068").to_vec()
+        },
+        label: types::DealLabel {
+            data: alloy_primitives::Bytes::from_static(b"6d41584367354149673859425862466a7464427931695a6a704459417752537430656c474c463547765471756c4569693156634d").to_vec(),
+            isString: true
+        },
+        // start_epoch: alloy_primitives::I64::from(25245),
+        // end_epoch: alloy_primitives::I64::from(545150),
+        start_epoch: "25245".parse().unwrap(),
+        end_epoch: "545150".parse().unwrap(),
+        storage_price_per_epoch: types::BigInt {
+            val: alloy_primitives::Bytes::from_static(b"01001D1BF800").to_vec(),
+            neg: false
+        },
+        provider_collateral: types::BigInt {
+            val: alloy_primitives::Bytes::from_static(b"038D7EA4C68000").to_vec(),
+            neg: false
+        },
+        client_collateral: types::BigInt {
+            val: alloy_primitives::Bytes::from_static(b"038D7EA4C68000").to_vec(),
+            neg: false
+        }
+    };
+
+    let abi_encoded = types::DealProposal::encode(&deal_proposal);
     println!("Calling `publish_storage_deals`");
 
     let message = Message {
