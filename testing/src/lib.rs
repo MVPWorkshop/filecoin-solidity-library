@@ -9,7 +9,7 @@ extern crate prettytable;
 
 pub mod helpers;
 pub mod setup;
-
+pub mod types;
 
 pub type GasResult = Vec<(String, i64)>;
 
