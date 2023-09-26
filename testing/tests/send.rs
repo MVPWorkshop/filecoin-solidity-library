@@ -15,6 +15,17 @@ use testing::setup;
 use testing::GasResult;
 use testing::parse_gas;
 
+use testing::types;
+
+use alloy_json_abi::JsonAbi;
+use alloy_sol_types::encode_params;
+use alloy_primitives;
+use alloy_primitives::hex_literal;
+use alloy_sol_types::{sol, SolCall, SolInterface, SolStruct};
+
+use hex;
+use cbor_data::{CborBuilder, Encoder};
+
 const WASM_COMPILED_PATH: &str = "../build/v0.8/tests/SendApiTest.bin";
 
 #[derive(SerdeSerialize, SerdeDeserialize)]
@@ -24,6 +35,11 @@ pub struct CreateExternalParams(#[serde(with = "strict_bytes")] pub Vec<u8>);
 #[test]
 fn send_tests() {
     println!("Testing solidity API");
+
+    let contract_path = "../build/v0.8/tests/SendApiTest.abi";
+    let contract_json = std::fs::read_to_string(contract_path).unwrap();
+
+    let contract: JsonAbi = serde_json::from_str(&contract_json).unwrap();
 
     let mut gas_result: GasResult = vec![];
     let (mut tester, _manifest) = setup::setup_tester();
@@ -133,6 +149,13 @@ fn send_tests() {
     assert_eq!(res.msg_receipt.exit_code.value(), 0);
 
     println!("Calling `send (actor id)`");
+    let actor_id = types::FilActorId::from(1);
+    let actor_id_data = hex::encode(encode_params(&(actor_id)));
+
+    let selector_actor_id = contract.function("send").unwrap()[0].selector();
+    let encoded_selector_actor_id = hex::encode(selector_actor_id);
+
+    let send_fil_actor_id_data = format!("{}{}", encoded_selector_actor_id, actor_id_data);
 
     let message = Message {
             from: sender[0].1,
@@ -154,13 +177,30 @@ fn send_tests() {
 
     println!("Calling `send (address)`");
 
+    let fil_address = types::FilAddress {
+        data: alloy_primitives::Bytes::from_static(b"01a53e34d73bbd7688a8d8be9448b2ede303349e30").to_vec()
+    };
+    let fil_address_data = hex::encode(encode_params(&(fil_address.tokenize())));
+
+    let selector = contract.function("send").unwrap()[1].selector();
+    let encoded_selector = hex::encode(selector);
+
+    let send_fil_address_data = format!("{}{}", encoded_selector, fil_address_data);
+
+    let cbor = CborBuilder::default().encode_array(|builder| {
+        builder.encode_bytes(send_fil_address_data);
+    });
+
+    let temps = hex::encode_upper(&cbor.as_slice());
+    let params = &temps[2..temps.len()];
+
     let message = Message {
         from: sender[0].1,
         to: Address::new_id(contract_actor_id),
-        gas_limit: 1000000000,
-        method_num: EvmMethods::InvokeContract as u64,
+        gas_limit: 1000000000, method_num: EvmMethods::InvokeContract as u64,
         sequence: 3,
-        params: RawBytes::new(hex::decode("58A40E0E687C0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000A000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020065000000000000000000000000000000000000000000000000000000000000").unwrap()),
+        params: RawBytes::new(hex::decode(params).unwrap()),
+        // params: RawBytes::new(hex::decode("58A40E0E687C0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000A000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020065000000000000000000000000000000000000000000000000000000000000").unwrap()),
         ..Message::default()
     };
 

@@ -58,6 +58,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "alloy-dyn-abi"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9b954c58532b0b327fa0cc7ce7d1a6b5a1554639620d99d812e27443cb486c7"
+dependencies = [
+ "alloy-json-abi",
+ "alloy-primitives",
+ "alloy-sol-type-parser",
+ "alloy-sol-types",
+ "const-hex",
+ "itoa 1.0.5",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "alloy-json-abi"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fe46acf61ad5bd7a5c21839bb2526358382fb8a6526f7ba393bdf593e2ae43f"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-type-parser",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "alloy-primitives"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -93,14 +121,23 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7720130c58db647103587b0c39aad4e669eea261e256040301d6c7983fdbb461"
 dependencies = [
+ "alloy-json-abi",
  "dunce",
  "heck",
  "proc-macro2",
  "quote",
+ "serde",
+ "serde_json",
  "syn 2.0.37",
  "syn-solidity",
  "tiny-keccak",
 ]
+
+[[package]]
+name = "alloy-sol-type-parser"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "627a32998aee7a7eedd351e9b6d4cacef9426935219a3a61befa332db1be5ca3"
 
 [[package]]
 name = "alloy-sol-types"
@@ -496,6 +533,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26b52a9543ae338f279b96b0b9fed9c8093744685043739079ce85cd58f289a6"
 dependencies = [
  "cipher",
+]
+
+[[package]]
+name = "cbor-data"
+version = "0.8.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a1165c64320670370b3d45dbf666b6f815223785f4b2def266fd25ba23458cd"
+dependencies = [
+ "base64",
+ "half",
+ "smallvec",
 ]
 
 [[package]]
@@ -2119,6 +2167,12 @@ dependencies = [
  "rand_xorshift",
  "subtle",
 ]
+
+[[package]]
+name = "half"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
 
 [[package]]
 name = "hashbrown"
@@ -3810,10 +3864,14 @@ dependencies = [
 name = "testing"
 version = "0.1.0"
 dependencies = [
+ "alloy-dyn-abi",
+ "alloy-json-abi",
  "alloy-primitives",
+ "alloy-sol-macro",
  "alloy-sol-types",
  "anyhow",
  "bls-signatures 0.13.0",
+ "cbor-data",
  "cid",
  "fil_actor_datacap",
  "fil_actor_eam",
@@ -3835,6 +3893,7 @@ dependencies = [
  "prettytable-rs",
  "rand_core",
  "serde",
+ "serde_json",
  "serde_tuple",
  "wabt",
 ]
