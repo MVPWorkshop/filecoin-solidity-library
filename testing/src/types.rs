@@ -7,6 +7,7 @@ sol! {
     }
 
     type FilActorId is uint64;
+    type Amount is uint256;
 }
 
 

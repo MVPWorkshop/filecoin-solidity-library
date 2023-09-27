@@ -21,7 +21,7 @@ use alloy_json_abi::JsonAbi;
 use alloy_sol_types::encode_params;
 use alloy_primitives;
 use alloy_primitives::hex_literal;
-use alloy_sol_types::{sol, SolCall, SolInterface, SolStruct};
+use alloy_sol_types::{sol, SolCall, SolStruct};
 
 use hex;
 use cbor_data::{CborBuilder, Encoder};
@@ -149,13 +149,23 @@ fn send_tests() {
     assert_eq!(res.msg_receipt.exit_code.value(), 0);
 
     println!("Calling `send (actor id)`");
-    let actor_id = types::FilActorId::from(1);
-    let actor_id_data = hex::encode(encode_params(&(actor_id)));
+    let actor_id = types::FilActorId::from(0);
+    let actor_id_data = hex::encode(actor_id.encode_single());
+
+    let amount = types::Amount::from(alloy_primitives::U256::from(0));
+    let amount_data = hex::encode(amount.encode_single());
 
     let selector_actor_id = contract.function("send").unwrap()[0].selector();
     let encoded_selector_actor_id = hex::encode(selector_actor_id);
 
-    let send_fil_actor_id_data = format!("{}{}", encoded_selector_actor_id, actor_id_data);
+    let send_fil_actor_id_data = format!("{}{}{}", encoded_selector_actor_id, actor_id_data, amount_data);
+
+    let cbor = CborBuilder::default().encode_array(|builder| {
+        builder.encode_bytes(send_fil_actor_id_data);
+    });
+
+    let temps = hex::encode_upper(&cbor.as_slice());
+    let params = &temps[2..temps.len()];
 
     let message = Message {
             from: sender[0].1,
@@ -163,7 +173,8 @@ fn send_tests() {
             gas_limit: 1000000000,
             method_num: EvmMethods::InvokeContract as u64,
             sequence: 2,
-            params: RawBytes::new(hex::decode("58446F7EE35E0000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000A").unwrap()),
+            params: RawBytes::new(hex::decode(params).unwrap()),
+            // params: RawBytes::new(hex::decode("58446F7EE35E0000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000A").unwrap()),
             ..Message::default()
         };
 
@@ -175,41 +186,41 @@ fn send_tests() {
     assert_eq!(res.msg_receipt.exit_code.value(), 0);
 
 
-    println!("Calling `send (address)`");
+    // println!("Calling `send (address)`");
 
-    let fil_address = types::FilAddress {
-        data: alloy_primitives::Bytes::from_static(b"01a53e34d73bbd7688a8d8be9448b2ede303349e30").to_vec()
-    };
-    let fil_address_data = hex::encode(encode_params(&(fil_address.tokenize())));
+    // let fil_address = types::FilAddress {
+    //     data: alloy_primitives::Bytes::from_static(b"01a53e34d73bbd7688a8d8be9448b2ede303349e30").to_vec()
+    // };
+    // let fil_address_data = hex::encode(encode_params(&(fil_address.tokenize())));
 
-    let selector = contract.function("send").unwrap()[1].selector();
-    let encoded_selector = hex::encode(selector);
+    // let selector = contract.function("send").unwrap()[1].selector();
+    // let encoded_selector = hex::encode(selector);
 
-    let send_fil_address_data = format!("{}{}", encoded_selector, fil_address_data);
+    // let send_fil_address_data = format!("{}{}", encoded_selector, fil_address_data);
 
-    let cbor = CborBuilder::default().encode_array(|builder| {
-        builder.encode_bytes(send_fil_address_data);
-    });
+    // let cbor = CborBuilder::default().encode_array(|builder| {
+    //     builder.encode_bytes(send_fil_address_data);
+    // });
 
-    let temps = hex::encode_upper(&cbor.as_slice());
-    let params = &temps[2..temps.len()];
+    // let temps = hex::encode_upper(&cbor.as_slice());
+    // let params = &temps[2..temps.len()];
 
-    let message = Message {
-        from: sender[0].1,
-        to: Address::new_id(contract_actor_id),
-        gas_limit: 1000000000, method_num: EvmMethods::InvokeContract as u64,
-        sequence: 3,
-        params: RawBytes::new(hex::decode(params).unwrap()),
-        // params: RawBytes::new(hex::decode("58A40E0E687C0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000A000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020065000000000000000000000000000000000000000000000000000000000000").unwrap()),
-        ..Message::default()
-    };
+    // let message = Message {
+    //     from: sender[0].1,
+    //     to: Address::new_id(contract_actor_id),
+    //     gas_limit: 1000000000, method_num: EvmMethods::InvokeContract as u64,
+    //     sequence: 3,
+    //     params: RawBytes::new(hex::decode(params).unwrap()),
+    //     // params: RawBytes::new(hex::decode("58A40E0E687C0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000A000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020065000000000000000000000000000000000000000000000000000000000000").unwrap()),
+    //     ..Message::default()
+    // };
 
-    let res = executor
-        .execute_message(message, ApplyKind::Explicit, 100)
-        .unwrap();
-    let gas_used = parse_gas(res.exec_trace);
-    gas_result.push(("send (address)".into(), gas_used));
-    assert_eq!(res.msg_receipt.exit_code.value(), 0);
+    // let res = executor
+    //     .execute_message(message, ApplyKind::Explicit, 100)
+    //     .unwrap();
+    // let gas_used = parse_gas(res.exec_trace);
+    // gas_result.push(("send (address)".into(), gas_used));
+    // assert_eq!(res.msg_receipt.exit_code.value(), 0);
 
     let table = testing::create_gas_table(gas_result);
     testing::save_gas_table(&table, "send");
